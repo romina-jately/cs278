@@ -1,0 +1,187 @@
+/* =========================================================================
+   Ares Design System — colors, type, spacing, radius, shadow tokens
+   Single source of truth. Import in every preview/ card and ui_kit screen.
+   ========================================================================= */
+
+/* Webfonts — Google Fonts CDN.
+   Substitution flag: no licensed fonts were provided. Drop .woff2 files into
+   fonts/ and replace these imports with @font-face when you have them. */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ── Color: warm neutrals (the 90%) ──────────────────────────────────── */
+  --cream:        #F6F0E4;  /* primary page bg */
+  --parchment:    #EFE6D2;  /* card bg, secondary surface */
+  --linen:        #E8DEC6;  /* hover/pressed step on cream */
+  --bone:         #FBF7EE;  /* lifted card on cream */
+  --ink-1:        #1C1A26;  /* primary text — warm charcoal, not black */
+  --ink-2:        #4A4654;  /* secondary text */
+  --ink-3:        #807B89;  /* tertiary / placeholder */
+  --ink-4:        #B8B3BE;  /* disabled, separators */
+  --hairline:     rgba(28, 26, 38, 0.08);
+  --hairline-2:   rgba(28, 26, 38, 0.04);
+
+  /* ── Color: brand accents ───────────────────────────────────────────── */
+  --iris:         #6B5BCB;  /* primary brand accent */
+  --iris-deep:    #4F3FA8;  /* pressed state, on-image */
+  --lavender:     #B8A6E8;  /* soft accent, surfaces */
+  --lavender-bg:  #EDE6FA;  /* tinted card bg */
+
+  /* ── Color: supporting hues ─────────────────────────────────────────── */
+  --navy:         #1B2447;  /* exec / depth */
+  --navy-bg:      #DDE2EE;  /* exec card tint */
+  --gold:         #C9A86B;  /* achievement / dues paid */
+  --gold-deep:    #9A7D3F;
+  --gold-bg:      #F2E8D1;
+  --dusty:        #7E9DBE;  /* calendar, info */
+  --dusty-bg:     #DCE5EE;
+  --rose:         #C77B7B;  /* warm coral — close-friends moments */
+  --rose-bg:      #F1DDDD;
+
+  /* ── Color: semantic (muted) ────────────────────────────────────────── */
+  --success:      #5C8A65;
+  --success-bg:   #DCE7DD;
+  --warning:      #C68B3A;
+  --warning-bg:   #F2E2C5;
+  --danger:       #B85B4E;
+  --danger-bg:    #F1D6D0;
+
+  /* Photography-on-card overlay ramps */
+  --photo-shade:  linear-gradient(180deg, rgba(28,26,38,0) 40%, rgba(28,26,38,.55) 100%);
+  --photo-tint:   linear-gradient(180deg, rgba(107,91,203,0) 0%, rgba(107,91,203,.18) 100%);
+
+  /* Inner-circle / gamification gradients (used sparingly) */
+  --grad-iris:    linear-gradient(135deg, #8C7AE2 0%, #6B5BCB 60%, #4F3FA8 100%);
+  --grad-gold:    linear-gradient(135deg, #E6C788 0%, #C9A86B 55%, #9A7D3F 100%);
+  --grad-rose:    linear-gradient(135deg, #E8B5B5 0%, #C77B7B 100%);
+  --grad-warm:    linear-gradient(180deg, #FBF7EE 0%, #F6F0E4 60%, #EFE6D2 100%);
+
+  /* ── Type: families ─────────────────────────────────────────────────── */
+  --font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+  --font-body:    "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono:    "Geist Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+  /* ── Type: sizes ────────────────────────────────────────────────────── */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-17: 17px;   /* iOS body */
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-22: 22px;
+  --fs-24: 24px;
+  --fs-28: 28px;
+  --fs-32: 32px;
+  --fs-40: 40px;
+  --fs-56: 56px;
+  --fs-72: 72px;
+
+  /* ── Type: weights & leading ────────────────────────────────────────── */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semi:    600;
+  --fw-bold:    700;
+  --lh-tight:   1.05;
+  --lh-snug:    1.2;
+  --lh-body:    1.4;
+  --lh-relaxed: 1.55;
+
+  /* Letter spacing — used sparingly */
+  --tr-tight:   -0.02em;  /* big display */
+  --tr-eyebrow: 0.08em;   /* TINY caps */
+
+  /* ── Spacing scale (8px base) ───────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 56px;
+  --sp-10: 80px;
+
+  /* ── Radii ──────────────────────────────────────────────────────────── */
+  --r-1: 4px;
+  --r-2: 12px;
+  --r-3: 16px;
+  --r-4: 20px;
+  --r-5: 28px;
+  --r-full: 999px;
+
+  /* ── Shadows ────────────────────────────────────────────────────────── */
+  --shadow-1: 0 1px 0 rgba(28,26,38,.04), 0 8px 24px rgba(28,26,38,.06);
+  --shadow-2: 0 1px 0 rgba(28,26,38,.05), 0 12px 40px rgba(28,26,38,.10);
+  --shadow-3: 0 2px 0 rgba(28,26,38,.06), 0 24px 60px rgba(28,26,38,.16);
+  --shadow-inset: inset 0 1px 0 rgba(28,26,38,.04), inset 0 0 0 1px rgba(28,26,38,.06);
+  --shadow-gold: 0 1px 0 rgba(154,125,63,.18), 0 10px 24px rgba(154,125,63,.22);
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  --page-pad: 20px;
+  --tab-h: 84px;
+  --nav-h: 52px;
+
+  /* ── Motion ─────────────────────────────────────────────────────────── */
+  --ease-ios:     cubic-bezier(.32,.72,0,1);
+  --ease-out:     cubic-bezier(.2,.8,.2,1);
+  --ease-spring:  cubic-bezier(.34,1.56,.64,1);
+  --dur-micro:    160ms;
+  --dur-short:    240ms;
+  --dur-page:     320ms;
+  --dur-sheet:    360ms;
+}
+
+/* =========================================================================
+   Semantic type styles — apply directly via className or use as @extends.
+   ========================================================================= */
+
+.t-display-xl,
+.t-display-lg,
+.t-display-md,
+.t-display-sm,
+.t-serif-eyebrow {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  color: var(--ink-1);
+  letter-spacing: var(--tr-tight);
+}
+.t-display-xl  { font-size: var(--fs-72); line-height: var(--lh-tight); }
+.t-display-lg  { font-size: var(--fs-56); line-height: var(--lh-tight); }
+.t-display-md  { font-size: var(--fs-40); line-height: var(--lh-snug);  }
+.t-display-sm  { font-size: var(--fs-32); line-height: var(--lh-snug);  }
+.t-serif-eyebrow { font-style: italic; font-size: var(--fs-18); color: var(--ink-2); letter-spacing: 0; }
+
+.t-h1, .t-h2, .t-h3, .t-body, .t-body-sm, .t-caption, .t-eyebrow, .t-num, .t-num-lg {
+  font-family: var(--font-body);
+  color: var(--ink-1);
+}
+.t-h1       { font-size: var(--fs-28); line-height: var(--lh-snug);   font-weight: var(--fw-semi); letter-spacing: -0.01em; }
+.t-h2       { font-size: var(--fs-22); line-height: var(--lh-snug);   font-weight: var(--fw-semi); letter-spacing: -0.005em; }
+.t-h3       { font-size: var(--fs-18); line-height: var(--lh-snug);   font-weight: var(--fw-semi); }
+.t-body     { font-size: var(--fs-17); line-height: var(--lh-body);   font-weight: var(--fw-regular); }
+.t-body-sm  { font-size: var(--fs-15); line-height: var(--lh-body);   font-weight: var(--fw-regular); color: var(--ink-2); }
+.t-caption  { font-size: var(--fs-13); line-height: var(--lh-body);   font-weight: var(--fw-regular); color: var(--ink-3); }
+.t-eyebrow  { font-size: var(--fs-12); font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: var(--tr-eyebrow); color: var(--ink-2); }
+.t-num      { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); }
+.t-num-lg   { font-family: var(--font-display); font-size: var(--fs-56); line-height: 1; font-feature-settings: "lnum"; letter-spacing: -0.02em; }
+
+/* =========================================================================
+   Base reset for previews
+   ========================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-17);
+  line-height: var(--lh-body);
+  color: var(--ink-1);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+::selection { background: var(--lavender); color: var(--ink-1); }
