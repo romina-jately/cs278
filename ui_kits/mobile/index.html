@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ares — Mobile UI Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { background: linear-gradient(180deg,#FBF7EE 0%,#F6F0E4 60%,#EFE6D2 100%); min-height: 100vh; padding: 56px 24px 80px; }
+  .header { max-width: 1280px; margin: 0 auto 40px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .h-left h1 { font-family: var(--font-display); font-size: 56px; line-height: 1; letter-spacing: -.02em; margin: 0; color: var(--ink-1); }
+  .h-left p { font-family: var(--font-body); font-size: 15px; color: var(--ink-2); margin: 8px 0 0; max-width: 540px; }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; background: var(--bone); border-radius: 999px; box-shadow: var(--shadow-inset); }
+  .nav button { font: inherit; border: 0; padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--ink-3); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .16s var(--ease-out); }
+  .nav button.on { background: var(--ink-1); color: var(--bone); }
+  .stage { display: flex; justify-content: center; gap: 32px; align-items: flex-start; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; }
+  .frame-wrap { transition: transform .32s var(--ease-ios); }
+  .label { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 14px; }
+  .nav { align-items: center; max-width: 560px; }
+  .nav .group-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); padding: 0 8px 0 10px; margin-left: 4px; border-left: 1px solid var(--hairline); align-self: center; white-space: nowrap; }
+  .nav .group-label.first { border-left: 0; margin-left: 0; padding-left: 4px; }
+  @keyframes ares-caret { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+  @media (max-width: 700px) { body { padding: 24px 12px 48px; } .header { flex-direction: column; align-items: flex-start; } .h-left h1 { font-size: 36px; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="h-left">
+      <h1>Ares — mobile</h1>
+      <p>A click-through hi-fi recreation of the Ares iPhone app at 390 × 844. The core app, the sign-up flow, and event creation. Tap a tab to switch.</p>
+    </div>
+    <div id="nav" class="nav"></div>
+  </div>
+  <div id="root" class="stage"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="components/Primitives.jsx"></script>
+  <script type="text/babel" src="components/Frame.jsx"></script>
+  <script type="text/babel" src="components/Cards.jsx"></script>
+  <script type="text/babel" src="components/Screens.jsx"></script>
+  <script type="text/babel" src="components/Onboarding.jsx"></script>
+  <script type="text/babel" src="components/CreateEvent.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const SCREENS = [
+      { id: "home", label: "Home", group: "App", Comp: () => <HomeScreen onOpenEvent={() => setScreen("event")} onOpenChat={() => setScreen("thread")}/> },
+      { id: "calendar", label: "Calendar", group: "App", Comp: () => <CalendarScreen onOpenEvent={() => setScreen("event")} onCreate={() => setScreen("createEvent")}/> },
+      { id: "event", label: "Event", group: "App", Comp: () => <EventScreen onBack={() => setScreen("calendar")}/> },
+      { id: "chat", label: "Chat", group: "App", Comp: () => <MessagingScreen onOpenThread={() => setScreen("thread")}/> },
+      { id: "thread", label: "Thread", group: "App", Comp: () => <ThreadScreen onBack={() => setScreen("chat")}/> },
+      { id: "alumnae", label: "Alumnae", group: "App", Comp: () => <AlumnaeScreen/> },
+      { id: "profile", label: "Profile", group: "App", Comp: () => <ProfileScreen/> },
+
+      { id: "welcome", label: "Welcome", group: "Sign up", Comp: () => <WelcomeScreen onNext={() => setScreen("phone")} onCode={() => setScreen("phone")}/> },
+      { id: "phone", label: "Phone", group: "Sign up", Comp: () => <PhoneScreen onBack={() => setScreen("welcome")} onNext={() => setScreen("verify")}/> },
+      { id: "verify", label: "Verify", group: "Sign up", Comp: () => <VerifyScreen onBack={() => setScreen("phone")} onNext={() => setScreen("setup")}/> },
+      { id: "setup", label: "Profile", group: "Sign up", Comp: () => <ProfileSetupScreen onBack={() => setScreen("verify")} onNext={() => setScreen("welcomeIn")}/> },
+      { id: "welcomeIn", label: "You're in", group: "Sign up", Comp: () => <WelcomeInScreen onEnter={() => setScreen("home")}/> },
+
+      { id: "createEvent", label: "Compose", group: "Create event", Comp: () => <CreateEventScreen onCancel={() => setScreen("calendar")} onNext={() => setScreen("eventDetails")}/> },
+      { id: "eventDetails", label: "Tasks & RSVP", group: "Create event", Comp: () => <EventDetailsScreen onBack={() => setScreen("createEvent")} onPublish={() => setScreen("eventPublished")}/> },
+      { id: "eventPublished", label: "Published", group: "Create event", Comp: () => <EventPublishedScreen onView={() => setScreen("event")} onDone={() => setScreen("calendar")}/> },
+    ];
+
+    let setScreen;
+    function App() {
+      const [s, set] = useState("home");
+      setScreen = set;
+      const scr = SCREENS.find(x => x.id === s);
+      return (
+        <>
+          <div className="frame-wrap">
+            <scr.Comp/>
+            <div className="label">{scr.label.toUpperCase()} · 390 × 844</div>
+          </div>
+        </>
+      );
+    }
+
+    function Nav() {
+      const [s, set] = useState("home");
+      useEffect(() => {
+        const id = setInterval(() => set(window.__currentScreen || "home"), 200);
+        return () => clearInterval(id);
+      }, []);
+      const out = [];
+      let lastGroup = null;
+      SCREENS.forEach((x, idx) => {
+        if (x.group !== lastGroup) {
+          out.push(<span key={"g" + x.group} className={"group-label" + (lastGroup === null ? " first" : "")}>{x.group}</span>);
+          lastGroup = x.group;
+        }
+        out.push(
+          <button key={x.id} className={s === x.id ? "on" : ""} onClick={() => { setScreen(x.id); window.__currentScreen = x.id; }}>{x.label}</button>
+        );
+      });
+      return out;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+    ReactDOM.createRoot(document.getElementById("nav")).render(<Nav/>);
+  </script>
+</body>
+</html>
