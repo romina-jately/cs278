@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Frame, TopNav } from "../components/Frame";
 import { Avatar } from "../components/primitives/Avatar";
@@ -6,11 +7,25 @@ import { Icon } from "../components/primitives/Icon";
 import { SectionHeader } from "../components/cards/cards";
 import { useApi } from "../lib/useApi";
 import { api } from "../api";
+import { useToast } from "../lib/toast";
 
 export default function JobDetailScreen() {
   const { id = "j1" } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const job = useApi(() => api.getJob(id), [id]);
+  const [applied, setApplied] = useState(false);
+
+  async function apply() {
+    if (!job) return;
+    await api.applyToJob(job.id);
+    setApplied(true);
+    toast.show(`Applied — ${job.via} was pinged`);
+  }
+  async function dmReferrer() {
+    if (!job) return;
+    toast.show(`Opening DM with ${job.via}…`);
+  }
 
   if (!job) {
     return (
@@ -64,11 +79,15 @@ export default function JobDetailScreen() {
             <div style={{ fontSize: 15, fontWeight: 500, color: "var(--ink-1)" }}>{job.via}</div>
             <div style={{ fontSize: 12, color: "var(--ink-3)" }}>“I always reply — DM me first.”</div>
           </div>
-          <Button variant="secondary" size="sm" icon={<Icon name="send" size={14}/>}>DM</Button>
+          <Button variant="secondary" size="sm" onClick={dmReferrer} icon={<Icon name="send" size={14}/>}>DM</Button>
         </div>
 
         <div style={{ marginTop: 20 }}>
-          <Button variant="iris" size="lg" full icon={<Icon name="arrow" size={17} color="var(--bone)"/>}>Apply via referral</Button>
+          {applied ? (
+            <Button variant="secondary" size="lg" full icon={<Icon name="check" size={17}/>}>Applied · with {job.via.split(",")[0]}</Button>
+          ) : (
+            <Button variant="iris" size="lg" full onClick={apply} icon={<Icon name="arrow" size={17} color="var(--bone)"/>}>Apply via referral</Button>
+          )}
         </div>
       </div>
     </Frame>

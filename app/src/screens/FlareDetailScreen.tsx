@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Frame } from "../components/Frame";
 import { Avatar, AvatarStack } from "../components/primitives/Avatar";
@@ -5,11 +6,24 @@ import { Badge, Button } from "../components/primitives/atoms";
 import { Icon } from "../components/primitives/Icon";
 import { useApi } from "../lib/useApi";
 import { api } from "../api";
+import { useToast } from "../lib/toast";
 
 export default function FlareDetailScreen() {
   const { id = "f1" } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const f = useApi(() => api.getFlare(id), [id]);
+  const [joined, setJoined] = useState(false);
+
+  async function join() {
+    await api.joinFlare(id);
+    setJoined(true);
+    toast.show("You're in — host was pinged");
+  }
+  async function share() {
+    await api.shareToChapter("flare", id);
+    toast.show("Shared in Chapter chat");
+  }
 
   if (!f) {
     return (
@@ -62,8 +76,12 @@ export default function FlareDetailScreen() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 18 }}>
-          <Button variant="iris" size="lg" full icon={<Icon name="check" size={17}/>}>Join</Button>
-          <Button variant="ghost" size="md" full icon={<Icon name="send" size={16}/>}>Share with chapter</Button>
+          {joined ? (
+            <Button variant="secondary" size="lg" full icon={<Icon name="check" size={17}/>}>You're going</Button>
+          ) : (
+            <Button variant="iris" size="lg" full onClick={join} icon={<Icon name="check" size={17}/>}>Join</Button>
+          )}
+          <Button variant="ghost" size="md" full onClick={share} icon={<Icon name="send" size={16}/>}>Share with chapter</Button>
         </div>
 
         <div style={{

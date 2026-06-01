@@ -73,6 +73,15 @@ const MOCK_FLARES: Record<string, Flare> = {
   f4: { id: "f4", title: "Love Island watch", host: "Sam G.", hostGradient: 4, going: 3, ttl: "ends 11pm", cover: "linear-gradient(135deg,#E8B5B5,#C77B7B)" },
 };
 
+export const FLARE_COVERS: Array<{ id: string; gradient: string; label: string }> = [
+  { id: "gold", gradient: "linear-gradient(135deg,#E6C788,#C9A86B 60%,#9A7D3F)", label: "Gold" },
+  { id: "moss", gradient: "linear-gradient(135deg,#DCE7DD,#5C8A65)", label: "Moss" },
+  { id: "iris", gradient: "linear-gradient(135deg,#B8A6E8,#6B5BCB)", label: "Iris" },
+  { id: "rose", gradient: "linear-gradient(135deg,#E8B5B5,#C77B7B)", label: "Rose" },
+];
+
+export const FLARE_DURATIONS = ["ends in 1h", "ends in 2h", "ends in 3h", "ends 11pm"];
+
 const MOCK_EVENTS: Record<string, Event> = {
   "evt-retreat": {
     id: "evt-retreat", title: "Sisterhood retreat", eyebrow: "Friday May 9",
@@ -182,9 +191,13 @@ const MEMBER_DIRECTORY: Record<string, Member> = {
   a3: { id: "a3", name: "Tess Morgan", year: "'18", role: "Analyst, Goldman", location: "NYC", gradient: 4, hiring: true },
   a4: { id: "a4", name: "Mia Levin", year: "'17", role: "Resident, Stanford Med", location: "Palo Alto", gradient: 2 },
   a5: { id: "a5", name: "Jules Hart", year: "'16", role: "Founder, Patchwork", location: "LA", gradient: 0 },
-  "maya-p": { id: "maya-p", name: "Maya P.", gradient: 0, role: "Host · bringing snacks" },
-  "lily-k": { id: "lily-k", name: "Lily K.", gradient: 1, role: "Driving · 4 seats" },
-  "nora-t": { id: "nora-t", name: "Nora T.", gradient: 2, role: "Joining late" },
+  "maya-p": { id: "maya-p", name: "Maya P.", gradient: 0, role: "VP · Junior", pledgeClass: "Spring '24", major: "Marketing" },
+  "lily-k": { id: "lily-k", name: "Lily K.", gradient: 1, role: "Social chair · Junior", pledgeClass: "Spring '24", major: "Econ" },
+  "nora-t": { id: "nora-t", name: "Nora T.", gradient: 2, role: "Pledge ed · Sophomore", pledgeClass: "Spring '25", major: "CS" },
+  "ava-r": { id: "ava-r", name: "Ava R.", gradient: 3, role: "Treasurer · Junior", pledgeClass: "Fall '23", major: "Symbolic Systems" },
+  "tess-m": { id: "tess-m", name: "Tess M.", gradient: 4, role: "Philanthropy · Senior", pledgeClass: "Spring '22", major: "Public Policy" },
+  "sam-g": { id: "sam-g", name: "Sam G.", gradient: 0, role: "Sophomore", pledgeClass: "Spring '25", major: "Design" },
+  "iris-w": { id: "iris-w", name: "Iris W.", gradient: 5, role: "Junior", pledgeClass: "Spring '24", major: "CS" },
 };
 
 const MOCK_EVENT_GOING: Record<string, Member[]> = {
@@ -429,4 +442,48 @@ export const api = {
     USE_MOCKS
       ? delay({ ok: true as const, eventId: `evt-${Date.now()}`, notified: 60, texted: 12 })
       : request("/events", { method: "POST", body: JSON.stringify(input) }),
+
+  createFlare: (input: { title: string; cover: string; ttl: string }): Promise<Flare> => {
+    const id = `f-${Date.now()}`;
+    const flare: Flare = {
+      id, title: input.title || "New plan",
+      host: "Maya P.", hostGradient: 0,
+      going: 1, ttl: input.ttl, cover: input.cover,
+    };
+    if (USE_MOCKS) {
+      MOCK_FLARES[id] = flare;
+      return delay(flare);
+    }
+    return request("/flares", { method: "POST", body: JSON.stringify(input) });
+  },
+
+  joinFlare: (id: string): Promise<{ ok: true; going: number }> => {
+    if (USE_MOCKS) {
+      const f = MOCK_FLARES[id];
+      if (f) f.going += 1;
+      return delay({ ok: true as const, going: f?.going ?? 1 });
+    }
+    return request(`/flares/${id}/join`, { method: "POST" });
+  },
+
+  shareToChapter: (kind: "flare" | "event", id: string): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request(`/share`, { method: "POST", body: JSON.stringify({ kind, id }) }),
+
+  addEventPhoto: (eventId: string): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request(`/events/${eventId}/photos`, { method: "POST" }),
+
+  applyToJob: (jobId: string): Promise<{ ok: true; applied: boolean }> =>
+    USE_MOCKS ? delay({ ok: true as const, applied: true }) : request(`/jobs/${jobId}/apply`, { method: "POST" }),
+
+  requestIntro: (memberId: string): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request(`/members/${memberId}/intro`, { method: "POST" }),
+
+  scheduleCoffee: (memberId: string): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request(`/members/${memberId}/coffee`, { method: "POST" }),
+
+  resolveApproval: (id: string, action: "approve" | "hold"): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request(`/approvals/${id}`, { method: "POST", body: JSON.stringify({ action }) }),
+
+  payDues: (): Promise<{ ok: true; receipt: string }> =>
+    USE_MOCKS ? delay({ ok: true as const, receipt: `RCT-${Date.now()}` }) : request("/dues/pay", { method: "POST" }),
 };

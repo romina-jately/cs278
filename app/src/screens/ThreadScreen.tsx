@@ -3,17 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Frame, TopNav } from "../components/Frame";
 import { Icon } from "../components/primitives/Icon";
 import { MessageBubble } from "../components/cards/cards";
+import { Sheet, SheetOption } from "../components/Sheet";
 import { useApi } from "../lib/useApi";
 import { api } from "../api";
 import type { Message } from "../types";
+import { useToast } from "../lib/toast";
 
 export default function ThreadScreen() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { id = "chapter" } = useParams();
   const thread = useApi(() => api.getThread(id), [id]);
   const initial = useApi(() => api.getThreadMessages(id), [id]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [muted, setMuted] = useState(false);
   useEffect(() => { if (initial) setMessages(initial); }, [initial]);
 
   function send() {
@@ -21,6 +26,21 @@ export default function ThreadScreen() {
     if (!text) return;
     setDraft("");
     api.sendMessage(id, text).then(m => setMessages(arr => [...arr, m]));
+  }
+
+  function pickAction(action: "mute" | "pin" | "search" | "leave") {
+    setMenuOpen(false);
+    if (action === "mute") {
+      setMuted(m => !m);
+      toast.show(muted ? "Unmuted" : "Muted · no notifications");
+    } else if (action === "pin") {
+      toast.show("Pinned a message");
+    } else if (action === "search") {
+      toast.show("Search · coming next");
+    } else if (action === "leave") {
+      toast.show("Left the thread");
+      navigate("/chat");
+    }
   }
 
   return (
@@ -32,7 +52,7 @@ export default function ThreadScreen() {
         onLeft={() => navigate("/chat")}
         serif={false}
         rightIcons={[
-          <button key="o" style={{
+          <button key="o" onClick={() => setMenuOpen(true)} style={{
             background: "var(--bone)", border: 0, width: 36, height: 36, borderRadius: 999,
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "var(--ink-1)", boxShadow: "var(--shadow-1)", cursor: "pointer",
@@ -95,6 +115,13 @@ export default function ThreadScreen() {
           <Icon name="send" size={16}/>
         </button>
       </div>
+
+      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title={thread?.name ?? "Thread"}>
+        <SheetOption label={muted ? "Unmute notifications" : "Mute notifications"} onClick={() => pickAction("mute")}/>
+        <SheetOption label="Pin a message" onClick={() => pickAction("pin")}/>
+        <SheetOption label="Search messages" onClick={() => pickAction("search")}/>
+        <SheetOption label="Leave thread" onClick={() => pickAction("leave")}/>
+      </Sheet>
     </Frame>
   );
 }

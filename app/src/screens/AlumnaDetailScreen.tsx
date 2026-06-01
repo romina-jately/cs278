@@ -6,11 +6,24 @@ import { Icon } from "../components/primitives/Icon";
 import { SectionHeader } from "../components/cards/cards";
 import { useApi } from "../lib/useApi";
 import { api } from "../api";
+import { useToast } from "../lib/toast";
 
 export default function AlumnaDetailScreen() {
   const { id = "a1" } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const m = useApi(() => api.getMember(id), [id]);
+
+  async function intro() {
+    if (!m) return;
+    await api.requestIntro(m.id);
+    toast.show(`Intro request sent to ${m.name}`);
+  }
+  async function coffee() {
+    if (!m) return;
+    await api.scheduleCoffee(m.id);
+    toast.show(`Coffee chat — ${m.name} will pick a time`);
+  }
 
   if (!m) {
     return (
@@ -55,8 +68,8 @@ export default function AlumnaDetailScreen() {
         </div>
 
         <div style={{ display: "flex", gap: 8, marginTop: 22 }}>
-          <Button variant="iris" size="md" full icon={<Icon name="send" size={16}/>}>Request intro</Button>
-          <Button variant="light" size="md" full icon={<Icon name="coffee" size={16}/>}>Coffee chat</Button>
+          <Button variant="iris" size="md" full onClick={intro} icon={<Icon name="send" size={16}/>}>Request intro</Button>
+          <Button variant="light" size="md" full onClick={coffee} icon={<Icon name="coffee" size={16}/>}>Coffee chat</Button>
         </div>
 
         <SectionHeader title="About" tight/>

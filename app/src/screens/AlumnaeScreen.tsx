@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Frame, TopNav, TabBar } from "../components/Frame";
 import { Avatar } from "../components/primitives/Avatar";
@@ -8,6 +8,7 @@ import { SectionHeader } from "../components/cards/cards";
 import { useApi } from "../lib/useApi";
 import { api, COVERS } from "../api";
 import type { AlumnaFilter } from "../types";
+import { useToast } from "../lib/toast";
 
 const FILTERS: Array<{ id: AlumnaFilter | "major" | "city"; label: string }> = [
   { id: "all", label: "All" },
@@ -19,10 +20,22 @@ const FILTERS: Array<{ id: AlumnaFilter | "major" | "city"; label: string }> = [
 
 export default function AlumnaeScreen() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [filter, setFilter] = useState<AlumnaFilter>("all");
   const featured = useApi(() => api.getFeaturedAlumna());
   const jobs = useApi(() => api.getJobs()) ?? [];
   const alumnae = useApi(() => api.getAlumnae(filter), [filter]) ?? [];
+
+  async function intro(e: MouseEvent, memberId: string, name: string) {
+    e.stopPropagation();
+    await api.requestIntro(memberId);
+    toast.show(`Intro request sent to ${name}`);
+  }
+  async function coffee(e: MouseEvent, memberId: string, name: string) {
+    e.stopPropagation();
+    await api.scheduleCoffee(memberId);
+    toast.show(`Coffee chat — ${name} will pick a time`);
+  }
 
   return (
     <Frame screenName="06 Alumnae">
@@ -56,15 +69,23 @@ export default function AlumnaeScreen() {
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-              <span style={{
-                background: "var(--bone)", color: "var(--ink-1)",
-                padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
-              }}>Request intro</span>
-              <span style={{
-                background: "rgba(251,247,238,.18)", color: "var(--bone)",
-                padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-                border: "1px solid rgba(251,247,238,.4)", whiteSpace: "nowrap",
-              }}>Coffee chat</span>
+              <button
+                onClick={e => intro(e, featured.id, featured.name)}
+                style={{
+                  background: "var(--bone)", color: "var(--ink-1)", border: 0, cursor: "pointer",
+                  padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap",
+                  fontFamily: "var(--font-body)",
+                }}
+              >Request intro</button>
+              <button
+                onClick={e => coffee(e, featured.id, featured.name)}
+                style={{
+                  background: "rgba(251,247,238,.18)", color: "var(--bone)", cursor: "pointer",
+                  padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                  border: "1px solid rgba(251,247,238,.4)", whiteSpace: "nowrap",
+                  fontFamily: "var(--font-body)",
+                }}
+              >Coffee chat</button>
             </div>
           </button>
         )}

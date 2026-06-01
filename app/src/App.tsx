@@ -19,6 +19,7 @@ import AlumnaDetailScreen from "./screens/AlumnaDetailScreen";
 import JobDetailScreen from "./screens/JobDetailScreen";
 import MemoryDetailScreen from "./screens/MemoryDetailScreen";
 import FlareDetailScreen from "./screens/FlareDetailScreen";
+import FlareComposeScreen from "./screens/FlareComposeScreen";
 
 type NavItem = { path: string; label: string; group: string; match?: (p: string) => boolean };
 
@@ -94,6 +95,7 @@ function Stage() {
           <Route path="/alumnae/:id" element={<AlumnaDetailScreen/>}/>
           <Route path="/jobs/:id" element={<JobDetailScreen/>}/>
           <Route path="/memories/:id" element={<MemoryDetailScreen/>}/>
+          <Route path="/flares/new" element={<FlareComposeScreen/>}/>
           <Route path="/flares/:id" element={<FlareDetailScreen/>}/>
           <Route path="/leaderboard" element={<LeaderboardScreen/>}/>
           <Route path="/me" element={<ProfileScreen/>}/>

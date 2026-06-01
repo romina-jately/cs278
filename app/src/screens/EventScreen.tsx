@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Frame, TabBar } from "../components/Frame";
 import { Avatar } from "../components/primitives/Avatar";
@@ -8,15 +8,18 @@ import { MemberRow, PhotoTile, SectionHeader, TaskRow } from "../components/card
 import { useApi } from "../lib/useApi";
 import { api, COVERS } from "../api";
 import type { Task } from "../types";
+import { useToast } from "../lib/toast";
 
 type Rsvp = "yes" | "maybe" | "no";
 
 export default function EventScreen() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { id = "evt-retreat" } = useParams();
   const event = useApi(() => api.getEvent(id), [id]);
   const remoteTasks = useApi(() => api.getEventTasks(id), [id]);
   const going = useApi(() => api.getEventGoing(id), [id]) ?? [];
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [rsvp, setRsvpState] = useState<Rsvp>("yes");
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -31,6 +34,25 @@ export default function EventScreen() {
     setTasks(arr => arr.map(t => t.id === taskId ? { ...t, done: !t.done } : t));
     const t = tasks.find(t => t.id === taskId);
     if (t) api.toggleTask(id, taskId, !t.done);
+  }
+
+  async function addToCalendar() {
+    toast.show("Added to Calendar · Fri 7pm");
+  }
+  async function directions() {
+    toast.show("Opening Maps…");
+  }
+  async function share() {
+    await api.shareToChapter("event", id);
+    toast.show("Shared with chapter");
+  }
+  function pickPhoto() {
+    fileRef.current?.click();
+  }
+  async function onPhotoChosen() {
+    await api.addEventPhoto(id);
+    toast.show("Photo added to album");
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   if (!event) return <Frame screenName="03 Event"><div/></Frame>;
@@ -85,12 +107,19 @@ export default function EventScreen() {
         </div>
 
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <Button variant="light" size="sm" icon={<Icon name="calendar" size={16}/>} style={{ whiteSpace: "nowrap" }}>Calendar</Button>
-          <Button variant="light" size="sm" icon={<Icon name="map" size={16}/>} style={{ whiteSpace: "nowrap" }}>Directions</Button>
-          <Button variant="light" size="sm" icon={<Icon name="send" size={16}/>} style={{ whiteSpace: "nowrap" }}>Share</Button>
+          <Button variant="light" size="sm" onClick={addToCalendar} icon={<Icon name="calendar" size={16}/>} style={{ whiteSpace: "nowrap" }}>Calendar</Button>
+          <Button variant="light" size="sm" onClick={directions} icon={<Icon name="map" size={16}/>} style={{ whiteSpace: "nowrap" }}>Directions</Button>
+          <Button variant="light" size="sm" onClick={share} icon={<Icon name="send" size={16}/>} style={{ whiteSpace: "nowrap" }}>Share</Button>
         </div>
 
-        <SectionHeader title="Album" action="Add photo" tight/>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={onPhotoChosen}
+          style={{ display: "none" }}
+        />
+        <SectionHeader title="Album" action="Add photo" onAction={pickPhoto} tight/>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
           <PhotoTile cover={COVERS.beach} h={84} style={{ borderRadius: 12 }}/>
           <PhotoTile cover={COVERS.philanthropy} h={84} style={{ borderRadius: 12 }}/>

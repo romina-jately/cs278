@@ -72,7 +72,7 @@ export default function HomeScreen() {
               </div>
             </button>
           ))}
-          <button style={{
+          <button onClick={() => navigate("/flares/new")} style={{
             flex: "0 0 140px", background: "transparent", border: "1.5px dashed var(--ink-4)",
             borderRadius: 20, padding: 12, color: "var(--ink-2)", display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer",

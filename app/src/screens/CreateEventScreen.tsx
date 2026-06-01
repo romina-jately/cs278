@@ -4,9 +4,31 @@ import { Frame } from "../components/Frame";
 import { Button } from "../components/primitives/atoms";
 import { Field, PickerRow, Segmented } from "../components/primitives/forms";
 import { Icon } from "../components/primitives/Icon";
+import { Sheet, SheetOption } from "../components/Sheet";
 import { COVER_SWATCHES } from "../api";
 import type { CoverKey, EventVisibility } from "../types";
 import { useCreateEvent } from "./createEventState";
+
+const DATE_OPTIONS = [
+  { label: "Fri, May 9", sub: "Friday" },
+  { label: "Sat, May 10", sub: "Saturday" },
+  { label: "Mon, May 12", sub: "Monday" },
+  { label: "Wed, May 14", sub: "Wednesday" },
+];
+
+const TIME_OPTIONS = [
+  { label: "7:00 – 10:00 PM", sub: "Evening" },
+  { label: "8:00 – 11:00 PM", sub: "Late evening" },
+  { label: "11:00 AM – 3:00 PM", sub: "Daytime" },
+  { label: "6:00 – 9:00 PM", sub: "Early evening" },
+];
+
+const WHERE_OPTIONS = [
+  { label: "Maya's house — Lake Geneva" },
+  { label: "House library" },
+  { label: "The Quad" },
+  { label: "Greek row · Lounge" },
+];
 
 const SubHead = ({ children, top = 24 }: { children: React.ReactNode; top?: number }) => (
   <div style={{
@@ -23,6 +45,10 @@ export default function CreateEventScreen() {
   const [title, setTitle] = useState(draft.title);
   const [about, setAbout] = useState(draft.about);
   const [vis, setVis] = useState<EventVisibility>(draft.visibility);
+  const [date, setDate] = useState(DATE_OPTIONS[0].label);
+  const [time, setTime] = useState(TIME_OPTIONS[0].label);
+  const [where, setWhere] = useState(WHERE_OPTIONS[0].label);
+  const [openSheet, setOpenSheet] = useState<"date" | "time" | "where" | null>(null);
 
   const current = COVER_SWATCHES.find(c => c.id === cover) ?? COVER_SWATCHES[0];
 
@@ -87,9 +113,9 @@ export default function CreateEventScreen() {
 
         <SubHead>When &amp; where</SubHead>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <PickerRow icon="calendar" label="Date" value="Fri, May 9" accent/>
-          <PickerRow icon="clock" label="Time" value="7:00 – 10:00 PM"/>
-          <PickerRow icon="location" label="Where" value="Maya's house — Lake Geneva"/>
+          <PickerRow icon="calendar" label="Date" value={date} onClick={() => setOpenSheet("date")} accent/>
+          <PickerRow icon="clock" label="Time" value={time} onClick={() => setOpenSheet("time")}/>
+          <PickerRow icon="location" label="Where" value={where} onClick={() => setOpenSheet("where")}/>
         </div>
 
         <SubHead>About</SubHead>
@@ -123,6 +149,39 @@ export default function CreateEventScreen() {
           Next — tasks &amp; RSVP
         </Button>
       </div>
+
+      <Sheet open={openSheet === "date"} onClose={() => setOpenSheet(null)} title="Pick a date">
+        {DATE_OPTIONS.map(opt => (
+          <SheetOption
+            key={opt.label}
+            label={opt.label} sub={opt.sub}
+            selected={date === opt.label}
+            onClick={() => { setDate(opt.label); setOpenSheet(null); }}
+          />
+        ))}
+      </Sheet>
+
+      <Sheet open={openSheet === "time"} onClose={() => setOpenSheet(null)} title="Pick a time">
+        {TIME_OPTIONS.map(opt => (
+          <SheetOption
+            key={opt.label}
+            label={opt.label} sub={opt.sub}
+            selected={time === opt.label}
+            onClick={() => { setTime(opt.label); setOpenSheet(null); }}
+          />
+        ))}
+      </Sheet>
+
+      <Sheet open={openSheet === "where"} onClose={() => setOpenSheet(null)} title="Pick a location">
+        {WHERE_OPTIONS.map(opt => (
+          <SheetOption
+            key={opt.label}
+            label={opt.label}
+            selected={where === opt.label}
+            onClick={() => { setWhere(opt.label); setOpenSheet(null); }}
+          />
+        ))}
+      </Sheet>
     </Frame>
   );
 }
