@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Frame, TopNav, TabBar } from "../components/Frame";
 import { AvatarStack } from "../components/primitives/Avatar";
@@ -6,22 +7,26 @@ import { Icon } from "../components/primitives/Icon";
 import { PhotoTile } from "../components/cards/cards";
 import { useApi } from "../lib/useApi";
 import { api, COVERS } from "../api";
-
-const WEEK = [
-  { d: "Mon", n: 5 }, { d: "Tue", n: 6 }, { d: "Wed", n: 7, today: true }, { d: "Thu", n: 8 },
-  { d: "Fri", n: 9, dot: "iris" as const }, { d: "Sat", n: 10 }, { d: "Sun", n: 11 }, { d: "Mon", n: 12, dot: "iris" as const },
-  { d: "Tue", n: 13 }, { d: "Wed", n: 14, dot: "gold" as const },
-];
+import type { DayCell } from "../types";
 
 export default function CalendarScreen() {
   const navigate = useNavigate();
+  const week = useApi(() => api.getWeekStrip()) ?? [];
   const events = useApi(() => api.getEvents()) ?? [];
+
+  const today = week.find(d => d.today)?.dayOfMonth ?? 7;
+  const [selected, setSelected] = useState<number | null>(null);
+
+  const filtered = useMemo(() => {
+    if (selected === null) return events;
+    return events.filter(e => e.dayOfMonth === selected);
+  }, [events, selected]);
 
   return (
     <Frame screenName="02 Calendar">
       <TopNav
         title="May"
-        subtitle="14 events · 5 happening"
+        subtitle={selected ? `Filtered to May ${selected}` : "14 events · 5 happening"}
         rightIcons={[
           <button key="s" style={{
             background: "var(--bone)", border: 0, width: 36, height: 36, borderRadius: 999,
@@ -40,23 +45,41 @@ export default function CalendarScreen() {
         ]}
       />
       <div style={{ flex: 1, overflow: "auto", padding: "0 20px 130px" }}>
-        <div style={{ display: "flex", gap: 6, overflowX: "auto", marginRight: -20, paddingRight: 20, marginBottom: 20 }}>
-          {WEEK.map((d, i) => (
-            <div key={i} style={{
-              flex: "0 0 44px", textAlign: "center", padding: "8px 4px", borderRadius: 14,
-              background: d.today ? "var(--ink-1)" : "transparent",
-              color: d.today ? "var(--bone)" : "var(--ink-1)",
-            }}>
-              <div style={{ fontSize: 10, fontWeight: 600, opacity: d.today ? .8 : .55, textTransform: "uppercase", letterSpacing: ".06em" }}>{d.d}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 20, lineHeight: 1, marginTop: 4 }}>{d.n}</div>
-              <div style={{ height: 6, marginTop: 6, display: "flex", justifyContent: "center" }}>
-                {d.dot && <span style={{ width: 5, height: 5, borderRadius: 999, background: d.dot === "iris" ? "var(--iris)" : "var(--gold)" }}/>}
-              </div>
-            </div>
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", marginRight: -20, paddingRight: 20, marginBottom: 12 }}>
+          {week.map(d => (
+            <DayButton
+              key={d.dayOfMonth}
+              cell={d}
+              isSelected={selected === d.dayOfMonth || (selected === null && d.today)}
+              isToday={d.dayOfMonth === today}
+              onClick={() => setSelected(prev => prev === d.dayOfMonth ? null : d.dayOfMonth)}
+            />
           ))}
         </div>
 
-        {events.map(e => (
+        {selected !== null && (
+          <button
+            onClick={() => setSelected(null)}
+            style={{
+              border: 0, background: "var(--bone)", color: "var(--iris)",
+              borderRadius: 999, padding: "8px 14px", fontSize: 13, fontWeight: 600,
+              boxShadow: "var(--shadow-1)", cursor: "pointer", marginBottom: 12,
+              display: "inline-flex", alignItems: "center", gap: 6,
+            }}
+          >
+            <Icon name="x" size={13}/> Clear filter
+          </button>
+        )}
+
+        {filtered.length === 0 ? (
+          <div style={{
+            background: "var(--bone)", borderRadius: 20, padding: 24, marginTop: 4,
+            boxShadow: "var(--shadow-1)", textAlign: "center", color: "var(--ink-3)",
+          }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink-2)" }}>Nothing on May {selected}</div>
+            <div style={{ fontSize: 13, marginTop: 6 }}>Tap the day again to clear, or hit <span style={{ color: "var(--iris)" }}>+</span> to plan something.</div>
+          </div>
+        ) : filtered.map(e => (
           <button key={e.id} onClick={() => navigate(`/events/${e.id}`)} style={{
             width: "100%", border: 0, padding: 0, background: "var(--bone)", borderRadius: 24,
             boxShadow: "var(--shadow-1)", overflow: "hidden", textAlign: "left", cursor: "pointer",
@@ -90,5 +113,40 @@ export default function CalendarScreen() {
       </div>
       <TabBar active="calendar"/>
     </Frame>
+  );
+}
+
+function DayButton({
+  cell, isSelected, isToday, onClick,
+}: {
+  cell: DayCell;
+  isSelected: boolean;
+  isToday: boolean;
+  onClick: () => void;
+}) {
+  const filled = isSelected;
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        flex: "0 0 44px", textAlign: "center", padding: "8px 4px", borderRadius: 14,
+        background: filled ? "var(--ink-1)" : "transparent",
+        color: filled ? "var(--bone)" : "var(--ink-1)",
+        border: 0, cursor: "pointer",
+        boxShadow: !filled && isToday ? "inset 0 0 0 1.5px var(--ink-4)" : "none",
+        transition: "background .16s var(--ease-out)",
+      }}
+    >
+      <div style={{ fontSize: 10, fontWeight: 600, opacity: filled ? .8 : .55, textTransform: "uppercase", letterSpacing: ".06em" }}>{cell.day}</div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 20, lineHeight: 1, marginTop: 4 }}>{cell.dayOfMonth}</div>
+      <div style={{ height: 6, marginTop: 6, display: "flex", justifyContent: "center" }}>
+        {cell.dot && (
+          <span style={{
+            width: 5, height: 5, borderRadius: 999,
+            background: cell.dot === "iris" ? "var(--iris)" : "var(--gold)",
+          }}/>
+        )}
+      </div>
+    </button>
   );
 }

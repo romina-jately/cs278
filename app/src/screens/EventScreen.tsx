@@ -113,7 +113,16 @@ export default function EventScreen() {
         <SectionHeader title={`Going · ${event.going}/${event.capacity}`} tight/>
         <div style={{ background: "var(--bone)", borderRadius: 20, padding: "4px 0", boxShadow: "var(--shadow-1)" }}>
           {going.map((m, i, arr) => (
-            <MemberRow key={m.id} name={m.name} sub={m.role} gradient={m.gradient} last={i === arr.length - 1}/>
+            <button
+              key={m.id}
+              onClick={() => navigate(`/alumnae/${m.id}`)}
+              style={{
+                display: "block", width: "100%", border: 0, background: "transparent",
+                padding: 0, cursor: "pointer", textAlign: "left",
+              }}
+            >
+              <MemberRow name={m.name} sub={m.role} gradient={m.gradient} last={i === arr.length - 1}/>
+            </button>
           ))}
         </div>
       </div>

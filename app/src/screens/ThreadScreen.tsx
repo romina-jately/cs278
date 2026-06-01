@@ -10,6 +10,7 @@ import type { Message } from "../types";
 export default function ThreadScreen() {
   const navigate = useNavigate();
   const { id = "chapter" } = useParams();
+  const thread = useApi(() => api.getThread(id), [id]);
   const initial = useApi(() => api.getThreadMessages(id), [id]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -25,8 +26,8 @@ export default function ThreadScreen() {
   return (
     <Frame screenName="05 Thread">
       <TopNav
-        title="Chapter"
-        subtitle="60 sisters"
+        title={thread?.name ?? "…"}
+        subtitle={thread?.subtitle ?? ""}
         leftIcon={<Icon name="back" size={18}/>}
         onLeft={() => navigate("/chat")}
         serif={false}
@@ -40,14 +41,16 @@ export default function ThreadScreen() {
           </button>,
         ]}
       />
-      <div style={{
-        background: "var(--lavender-bg)", padding: "8px 20px",
-        display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--hairline)",
-      }}>
-        <Icon name="pinFilled" size={12} color="var(--iris-deep)"/>
-        <span style={{ fontSize: 12, color: "var(--iris-deep)", flex: 1 }}>Retreat moved to 7pm — Maya</span>
-        <span style={{ fontSize: 11, color: "var(--ink-3)" }}>2m</span>
-      </div>
+      {thread?.pinned && (
+        <div style={{
+          background: "var(--lavender-bg)", padding: "8px 20px",
+          display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--hairline)",
+        }}>
+          <Icon name="pinFilled" size={12} color="var(--iris-deep)"/>
+          <span style={{ fontSize: 12, color: "var(--iris-deep)", flex: 1 }}>{thread.pinned.text}</span>
+          <span style={{ fontSize: 11, color: "var(--ink-3)" }}>{thread.pinned.ago}</span>
+        </div>
+      )}
       <div style={{ flex: 1, overflow: "auto", padding: "16px 16px 130px" }}>
         {messages.map(m => (
           <MessageBubble
@@ -59,13 +62,6 @@ export default function ThreadScreen() {
             system={m.system}
           />
         ))}
-        <div style={{ marginLeft: 12, marginTop: -2, marginBottom: 8 }}>
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            background: "var(--bone)", borderRadius: 999, padding: "2px 8px",
-            fontSize: 11, color: "var(--ink-2)", boxShadow: "var(--shadow-1)",
-          }}>🤍 4</span>
-        </div>
       </div>
       <div style={{
         position: "absolute", left: 12, right: 12, bottom: 14, zIndex: 10,

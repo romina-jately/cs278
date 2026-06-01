@@ -53,6 +53,7 @@ export type Event = {
   cover: CoverKey;
   tag?: Tag;
   pinned?: boolean;
+  dayOfMonth: number;
   dayBadge?: { month: string; day: string };
   attendees: string[];
   going: number;
@@ -64,11 +65,19 @@ export type Event = {
 
 export type UpcomingItem = {
   id: string;
+  eventId: string;
   day: string;
   dayNum: string;
   title: string;
   sub: string;
   tint: "lavender" | "gold" | "dusty";
+};
+
+export type DayCell = {
+  day: string;
+  dayOfMonth: number;
+  today: boolean;
+  dot: "iris" | "gold" | null;
 };
 
 export type Dues = {
@@ -100,6 +109,8 @@ export type Memory = {
   title: string;
   cover: CoverKey;
   count: number;
+  date?: string;
+  photos?: string[];
 };
 
 export type Message = {
@@ -119,6 +130,8 @@ export type Thread = {
   unread: number;
   gradient: number;
   isEvent?: boolean;
+  pinned?: { text: string; by: string; ago: string };
+  subtitle?: string;
 };
 
 export type ChatPreview = {
@@ -136,7 +149,11 @@ export type Job = {
   location: string;
   via: string;
   viaGradient: number;
+  about?: string;
+  pay?: string;
 };
+
+export type AlumnaFilter = "all" | "hiring" | "mentoring";
 
 export type Approval = {
   id: string;

@@ -50,7 +50,14 @@ export default function HomeScreen() {
 
         <div style={{ display: "flex", gap: 10, overflowX: "auto", marginTop: 10, marginRight: -20, paddingRight: 20 }}>
           {flares.map(f => (
-            <div key={f.id} style={{ flex: "0 0 200px", background: "var(--bone)", borderRadius: 20, padding: 12, boxShadow: "var(--shadow-1)" }}>
+            <button
+              key={f.id}
+              onClick={() => navigate(`/flares/${f.id}`)}
+              style={{
+                flex: "0 0 200px", background: "var(--bone)", borderRadius: 20, padding: 12,
+                boxShadow: "var(--shadow-1)", border: 0, cursor: "pointer", textAlign: "left",
+              }}
+            >
               <div style={{ height: 84, borderRadius: 14, background: f.cover, position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(28,26,38,0) 40%,rgba(28,26,38,.5) 100%)" }}/>
                 <div style={{ position: "absolute", left: 10, bottom: 8, color: "var(--bone)", fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", opacity: .9, whiteSpace: "nowrap" }}>{f.ttl}</div>
@@ -63,7 +70,7 @@ export default function HomeScreen() {
                 </div>
                 <span style={{ background: "var(--ink-1)", color: "var(--bone)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 999, flexShrink: 0 }}>Join</span>
               </div>
-            </div>
+            </button>
           ))}
           <button style={{
             flex: "0 0 140px", background: "transparent", border: "1.5px dashed var(--ink-4)",
@@ -118,7 +125,16 @@ export default function HomeScreen() {
           {upcoming.map(e => {
             const tints = { lavender: "var(--lavender-bg)", gold: "var(--gold-bg)", dusty: "var(--dusty-bg)" } as const;
             return (
-              <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--bone)", borderRadius: 16, padding: 12, boxShadow: "var(--shadow-1)" }}>
+              <button
+                key={e.id}
+                onClick={() => navigate(`/events/${e.eventId}`)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  background: "var(--bone)", borderRadius: 16, padding: 12,
+                  boxShadow: "var(--shadow-1)", border: 0, cursor: "pointer",
+                  textAlign: "left", width: "100%",
+                }}
+              >
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: tints[e.tint], display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--ink-1)" }}>
                   <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: "var(--ink-2)", textTransform: "uppercase" }}>{e.day}</span>
                   <span style={{ fontFamily: "var(--font-display)", fontSize: 22, lineHeight: 1 }}>{e.dayNum}</span>
@@ -128,7 +144,7 @@ export default function HomeScreen() {
                   <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{e.sub}</div>
                 </div>
                 <Icon name="chev" size={16} color="var(--ink-4)"/>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -174,8 +190,12 @@ export default function HomeScreen() {
           </div>
         )}
 
-        <SectionHeader title="The board" action="Full board →" tight/>
-        <div style={{ background: "var(--grad-iris)", borderRadius: 20, padding: 16, color: "var(--bone)", boxShadow: "var(--shadow-2)" }}>
+        <SectionHeader title="The board" action="Full board →" onAction={() => navigate("/leaderboard")} tight/>
+        <button onClick={() => navigate("/leaderboard")} style={{
+          background: "var(--grad-iris)", borderRadius: 20, padding: 16,
+          color: "var(--bone)", boxShadow: "var(--shadow-2)",
+          border: 0, cursor: "pointer", width: "100%", textAlign: "left",
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {leaderboard.map(p => (
               <div key={p.rank} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -195,21 +215,25 @@ export default function HomeScreen() {
               </div>
             ))}
           </div>
-        </div>
+        </button>
 
-        <SectionHeader title="Recent memories" action="See all →" tight/>
+        <SectionHeader title="Recent memories" action="See all →" onAction={() => navigate(`/memories/${memories[0]?.id ?? "m1"}`)} tight/>
         <div style={{ display: "flex", gap: 10, overflowX: "auto", marginRight: -20, paddingRight: 20 }}>
           {memories.map(m => (
-            <div key={m.id} style={{ flex: "0 0 144px" }}>
+            <button
+              key={m.id}
+              onClick={() => navigate(`/memories/${m.id}`)}
+              style={{ flex: "0 0 144px", border: 0, background: "transparent", padding: 0, cursor: "pointer" }}
+            >
               <PhotoTile cover={COVERS[m.cover]} h={180} style={{ borderRadius: 18 }}>
-                <div style={{ position: "absolute", left: 10, bottom: 10, right: 10, color: "var(--bone)" }}>
+                <div style={{ position: "absolute", left: 10, bottom: 10, right: 10, color: "var(--bone)", textAlign: "left" }}>
                   <div style={{ fontFamily: "var(--font-display)", fontSize: 18, lineHeight: 1.1, letterSpacing: "-.01em" }}>{m.title}</div>
                   <div style={{ fontSize: 11, opacity: .85, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
                     <Icon name="camera" size={11} color="currentColor"/>{m.count} photos
                   </div>
                 </div>
               </PhotoTile>
-            </div>
+            </button>
           ))}
         </div>
       </div>
