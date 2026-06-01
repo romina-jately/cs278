@@ -16,6 +16,9 @@ const initial: Draft = {
     { label: "Sign liability waiver", required: true },
     { label: "Pay $35 retreat fee", required: true },
   ],
+  date: "Fri, May 9",
+  time: "7:00 – 10:00 PM",
+  location: "Maya's house — Lake Geneva",
 };
 
 let state: Draft = initial;

@@ -185,5 +185,19 @@ export type PublishEventInput = {
   plusOne: boolean;
   mandatory: boolean;
   tasks: Array<{ label: string; required: boolean }>;
+  date: string;
+  time: string;
+  location: string;
 };
 export type PublishEventResult = { ok: true; eventId: string; notified: number; texted: number };
+
+export type Notification = {
+  id: string;
+  kind: "rsvp" | "post" | "dues" | "approval" | "flare" | "intro";
+  text: string;
+  time: string;
+  unread: boolean;
+  who?: string;
+  whoGradient?: number;
+  link?: string;
+};

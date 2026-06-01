@@ -20,6 +20,7 @@ import JobDetailScreen from "./screens/JobDetailScreen";
 import MemoryDetailScreen from "./screens/MemoryDetailScreen";
 import FlareDetailScreen from "./screens/FlareDetailScreen";
 import FlareComposeScreen from "./screens/FlareComposeScreen";
+import NotificationsScreen from "./screens/NotificationsScreen";
 
 type NavItem = { path: string; label: string; group: string; match?: (p: string) => boolean };
 
@@ -98,6 +99,7 @@ function Stage() {
           <Route path="/flares/new" element={<FlareComposeScreen/>}/>
           <Route path="/flares/:id" element={<FlareDetailScreen/>}/>
           <Route path="/leaderboard" element={<LeaderboardScreen/>}/>
+          <Route path="/notifications" element={<NotificationsScreen/>}/>
           <Route path="/me" element={<ProfileScreen/>}/>
           <Route path="/signup" element={<WelcomeScreen/>}/>
           <Route path="/signup/phone" element={<PhoneScreen/>}/>

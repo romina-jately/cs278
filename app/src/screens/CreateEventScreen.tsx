@@ -10,10 +10,14 @@ import type { CoverKey, EventVisibility } from "../types";
 import { useCreateEvent } from "./createEventState";
 
 const DATE_OPTIONS = [
+  { label: "Thu, May 8", sub: "Tomorrow" },
   { label: "Fri, May 9", sub: "Friday" },
   { label: "Sat, May 10", sub: "Saturday" },
+  { label: "Sun, May 11", sub: "Sunday" },
   { label: "Mon, May 12", sub: "Monday" },
+  { label: "Tue, May 13", sub: "Tuesday" },
   { label: "Wed, May 14", sub: "Wednesday" },
+  { label: "Thu, May 15", sub: "Thursday" },
 ];
 
 const TIME_OPTIONS = [
@@ -45,15 +49,15 @@ export default function CreateEventScreen() {
   const [title, setTitle] = useState(draft.title);
   const [about, setAbout] = useState(draft.about);
   const [vis, setVis] = useState<EventVisibility>(draft.visibility);
-  const [date, setDate] = useState(DATE_OPTIONS[0].label);
-  const [time, setTime] = useState(TIME_OPTIONS[0].label);
-  const [where, setWhere] = useState(WHERE_OPTIONS[0].label);
+  const [date, setDate] = useState(draft.date);
+  const [time, setTime] = useState(draft.time);
+  const [where, setWhere] = useState(draft.location);
   const [openSheet, setOpenSheet] = useState<"date" | "time" | "where" | null>(null);
 
   const current = COVER_SWATCHES.find(c => c.id === cover) ?? COVER_SWATCHES[0];
 
   function next() {
-    setDraft(d => ({ ...d, cover, title, about, visibility: vis }));
+    setDraft(d => ({ ...d, cover, title, about, visibility: vis, date, time, location: where }));
     navigate("/create/details");
   }
 

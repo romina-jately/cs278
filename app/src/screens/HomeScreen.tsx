@@ -25,14 +25,22 @@ export default function HomeScreen() {
         title={chapter?.name ?? "Pi Beta Phi"}
         subtitle={chapter?.subtitle}
         rightIcons={[
-          <button key="b" style={{
+          <button key="b" onClick={() => navigate("/notifications")} style={{
             background: "var(--bone)", border: 0, width: 36, height: 36, borderRadius: 999,
             display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: "var(--shadow-1)", color: "var(--ink-1)", cursor: "pointer",
+            position: "relative",
           }}>
             <Icon name="bell" size={18}/>
+            <span style={{
+              position: "absolute", top: 4, right: 4,
+              width: 8, height: 8, borderRadius: 999, background: "var(--iris)",
+              border: "1.5px solid var(--bone)",
+            }}/>
           </button>,
-          <Avatar key="a" name={me?.name ?? "MP"} size={36} gradient={me?.gradient ?? 1}/>,
+          <button key="a" onClick={() => navigate("/me")} style={{ background: "transparent", border: 0, padding: 0, cursor: "pointer" }}>
+            <Avatar name={me?.name ?? "MP"} size={36} gradient={me?.gradient ?? 1}/>
+          </button>,
         ]}
       />
       <div style={{ flex: 1, overflow: "auto", padding: "0 20px 120px" }}>

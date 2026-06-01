@@ -116,11 +116,14 @@ const MOCK_EVENTS: Record<string, Event> = {
   },
 };
 
-const MOCK_EVENT_LIST: Event[] = [
-  MOCK_EVENTS["evt-retreat"],
-  MOCK_EVENTS["evt-meet"],
-  MOCK_EVENTS["evt-bake"],
-];
+function eventList(): Event[] {
+  return Object.values(MOCK_EVENTS).sort((a, b) => a.dayOfMonth - b.dayOfMonth);
+}
+
+function parseDayOfMonth(date: string): number {
+  const match = date.match(/(\d{1,2})/);
+  return match ? Number(match[1]) : 0;
+}
 
 const MOCK_UPCOMING: UpcomingItem[] = [
   { id: "u1", eventId: "evt-meet", day: "Mon", dayNum: "12", title: "Chapter meeting", sub: "House library · 8pm", tint: "lavender" },
@@ -338,15 +341,24 @@ export const api = {
     USE_MOCKS ? delay(MOCK_EVENTS["evt-retreat"]) : request("/events/pinned"),
 
   getEvents: (): Promise<Event[]> =>
-    USE_MOCKS ? delay(MOCK_EVENT_LIST) : request("/events"),
+    USE_MOCKS ? delay(eventList()) : request("/events"),
 
   getEvent: (id: string): Promise<Event> =>
     USE_MOCKS
       ? delay(MOCK_EVENTS[id] ?? MOCK_EVENTS["evt-retreat"])
       : request(`/events/${id}`),
 
-  getWeekStrip: (): Promise<DayCell[]> =>
-    USE_MOCKS ? delay(MOCK_WEEK_STRIP) : request("/calendar/week"),
+  getWeekStrip: (): Promise<DayCell[]> => {
+    if (USE_MOCKS) {
+      const days = MOCK_WEEK_STRIP.map(d => {
+        const hasEvent = Object.values(MOCK_EVENTS).some(e => e.dayOfMonth === d.dayOfMonth);
+        const existingDot = d.dot;
+        return { ...d, dot: existingDot ?? (hasEvent ? "iris" as const : null) };
+      });
+      return delay(days);
+    }
+    return request("/calendar/week");
+  },
 
   getUpcoming: (): Promise<UpcomingItem[]> =>
     USE_MOCKS ? delay(MOCK_UPCOMING) : request("/events/upcoming"),
@@ -438,10 +450,45 @@ export const api = {
   updateProfile: (input: { name: string; pledgeClass: string; major: string }): Promise<{ ok: true }> =>
     USE_MOCKS ? delay({ ok: true as const }) : request("/me", { method: "PATCH", body: JSON.stringify(input) }),
 
-  publishEvent: (input: PublishEventInput): Promise<PublishEventResult> =>
-    USE_MOCKS
-      ? delay({ ok: true as const, eventId: `evt-${Date.now()}`, notified: 60, texted: 12 })
-      : request("/events", { method: "POST", body: JSON.stringify(input) }),
+  publishEvent: (input: PublishEventInput): Promise<PublishEventResult> => {
+    const eventId = `evt-${Date.now()}`;
+    if (USE_MOCKS) {
+      const dayOfMonth = parseDayOfMonth(input.date);
+      const newEvent: Event = {
+        id: eventId,
+        title: input.title || "Untitled event",
+        eyebrow: input.date,
+        date: input.date,
+        time: input.time,
+        location: input.location,
+        cover: input.cover,
+        dayOfMonth,
+        dayBadge: { month: "May", day: String(dayOfMonth) },
+        tag: input.mandatory
+          ? { label: "Mandatory", tone: "danger" }
+          : { label: "Just posted", tone: "iris" },
+        attendees: ["Maya P"],
+        going: 1,
+        capacity: 60,
+        reactions: 0,
+        comments: 0,
+        about: input.about,
+      };
+      MOCK_EVENTS[eventId] = newEvent;
+      MOCK_EVENT_TASKS[eventId] = input.tasks.map((t, i) => ({
+        id: `${eventId}-t${i}`,
+        label: t.label,
+        done: false,
+        by: "you",
+        required: t.required,
+      }));
+      MOCK_EVENT_GOING[eventId] = [
+        { id: "maya-p", name: "Maya P.", gradient: 0, role: "Host" },
+      ];
+      return delay({ ok: true as const, eventId, notified: 60, texted: 12 });
+    }
+    return request("/events", { method: "POST", body: JSON.stringify(input) });
+  },
 
   createFlare: (input: { title: string; cover: string; ttl: string }): Promise<Flare> => {
     const id = `f-${Date.now()}`;
@@ -486,4 +533,22 @@ export const api = {
 
   payDues: (): Promise<{ ok: true; receipt: string }> =>
     USE_MOCKS ? delay({ ok: true as const, receipt: `RCT-${Date.now()}` }) : request("/dues/pay", { method: "POST" }),
+
+  getNotifications: (): Promise<import("./types").Notification[]> => {
+    if (USE_MOCKS) {
+      const list: import("./types").Notification[] = [
+        { id: "n1", kind: "rsvp", text: "Lily K. RSVP'd to Sisterhood retreat", time: "12m", unread: true, who: "Lily K.", whoGradient: 1, link: "/events/evt-retreat" },
+        { id: "n2", kind: "approval", text: "Ava R. requested +30 pts · designed flyers", time: "1h", unread: true, who: "Ava R.", whoGradient: 2, link: "/me" },
+        { id: "n3", kind: "post", text: "Maya pinned a message in Chapter", time: "2h", unread: true, who: "Maya P.", whoGradient: 0, link: "/threads/chapter" },
+        { id: "n4", kind: "flare", text: "Nora started a plan — Coupa study sesh", time: "3h", unread: false, who: "Nora T.", whoGradient: 2, link: "/flares/f3" },
+        { id: "n5", kind: "dues", text: "Dues due Friday — $120", time: "Yest", unread: false, link: "/me" },
+        { id: "n6", kind: "intro", text: "Rachel Diaz, '19 replied to your intro request", time: "Yest", unread: false, who: "Rachel Diaz", whoGradient: 3, link: "/alumnae/a1" },
+      ];
+      return delay(list);
+    }
+    return request("/notifications");
+  },
+
+  markNotificationsRead: (): Promise<{ ok: true }> =>
+    USE_MOCKS ? delay({ ok: true as const }) : request("/notifications/read", { method: "POST" }),
 };

@@ -44,8 +44,18 @@ export default function EventDetailsScreen() {
   async function publish() {
     const merged = { ...draft, rsvp, mandatory, points, plusOne, tasks };
     setDraft(() => merged);
-    await api.publishEvent(merged);
-    navigate("/create/done");
+    const result = await api.publishEvent(merged);
+    navigate("/create/done", {
+      state: {
+        eventId: result.eventId,
+        title: merged.title,
+        date: merged.date,
+        time: merged.time,
+        cover: merged.cover,
+        notified: result.notified,
+        texted: result.texted,
+      },
+    });
   }
 
   return (
